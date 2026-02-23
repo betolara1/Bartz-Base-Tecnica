@@ -19,12 +19,9 @@ import {
 } from "lucide-react";
 import {
   getPiecesHistory,
-  getTutorialsHistory,
   clearPiecesHistory,
-  clearTutorialsHistory,
   formatTimeAgo,
-  type HistoryItem,
-  type TutorialHistoryItem
+  type HistoryItem
 } from "../utils/history";
 import {
   getFavoritePieces,
@@ -45,14 +42,12 @@ interface HistorySidebarProps {
 
 export function HistorySidebar({ onSelectPiece, onSelectTutorial }: HistorySidebarProps) {
   const [piecesHistory, setPiecesHistory] = useState<HistoryItem[]>([]);
-  const [tutorialsHistory, setTutorialsHistory] = useState<TutorialHistoryItem[]>([]);
   const [favoritePieces, setFavoritePieces] = useState<FavoritePiece[]>([]);
   const [favoriteTutorials, setFavoriteTutorials] = useState<FavoriteTutorial[]>([]);
-  const [activeTab, setActiveTab] = useState<"pieces" | "tutorials" | "favorites">("pieces");
+  const [activeTab, setActiveTab] = useState<"pieces" | "favorites">("pieces");
 
   const loadHistory = () => {
     setPiecesHistory(getPiecesHistory());
-    setTutorialsHistory(getTutorialsHistory());
   };
 
   const loadFavorites = () => {
@@ -74,12 +69,10 @@ export function HistorySidebar({ onSelectPiece, onSelectTutorial }: HistorySideb
     };
 
     window.addEventListener('historyUpdated', handleHistoryUpdate);
-    window.addEventListener('tutorialHistoryUpdated', handleHistoryUpdate);
     window.addEventListener('favoritesUpdated', handleFavoritesUpdate);
 
     return () => {
       window.removeEventListener('historyUpdated', handleHistoryUpdate);
-      window.removeEventListener('tutorialHistoryUpdated', handleHistoryUpdate);
       window.removeEventListener('favoritesUpdated', handleFavoritesUpdate);
     };
   }, []);
@@ -87,11 +80,6 @@ export function HistorySidebar({ onSelectPiece, onSelectTutorial }: HistorySideb
   const handleClearPiecesHistory = () => {
     clearPiecesHistory();
     setPiecesHistory([]);
-  };
-
-  const handleClearTutorialsHistory = () => {
-    clearTutorialsHistory();
-    setTutorialsHistory([]);
   };
 
   const handleClearPiecesFavorites = () => {
@@ -162,14 +150,11 @@ export function HistorySidebar({ onSelectPiece, onSelectTutorial }: HistorySideb
       </div>
 
       <div className="flex-1 min-h-0">
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "pieces" | "tutorials" | "favorites")} className="h-full flex flex-col">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "pieces" | "favorites")} className="h-full flex flex-col">
           <div className="px-5 pt-4 pb-2">
-            <TabsList className="grid w-full grid-cols-3 h-10 bg-zinc-100/50 dark:bg-zinc-900/50 p-1 rounded-xl">
+            <TabsList className="grid w-full grid-cols-2 h-10 bg-zinc-100/50 dark:bg-zinc-900/50 p-1 rounded-xl">
               <TabsTrigger value="pieces" className="text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm data-[state=active]:text-amber-600">
                 Peças
-              </TabsTrigger>
-              <TabsTrigger value="tutorials" className="text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm data-[state=active]:text-amber-600">
-                Aulas
               </TabsTrigger>
               <TabsTrigger value="favorites" className="text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-sm data-[state=active]:text-amber-600">
                 Salvos
@@ -251,83 +236,6 @@ export function HistorySidebar({ onSelectPiece, onSelectTutorial }: HistorySideb
               )}
             </TabsContent>
 
-            <TabsContent value="tutorials" className="h-full m-0 px-5 pb-5">
-              {tutorialsHistory.length > 0 ? (
-                <div className="h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4 pt-2">
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Vistos ({tutorialsHistory.length})</span>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleClearTutorialsHistory}
-                            className="h-7 w-7 p-0 text-zinc-300 hover:text-red-500 transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="left" className="glass-card border-zinc-200/50">
-                          <p className="text-[10px] font-bold uppercase tracking-widest">Limpar histórico</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-
-                  <ScrollArea className="flex-1 pr-2 -mr-2">
-                    <div className="space-y-2">
-                      {tutorialsHistory.map((item, index) => (
-                        <div key={`${item.id}-${item.timestamp}`}>
-                          <div
-                            className="group p-3 rounded-xl border border-transparent hover:border-emerald-100 dark:hover:border-emerald-900/30 hover:bg-emerald-50/30 dark:hover:bg-emerald-500/5 cursor-pointer transition-all duration-300"
-                            onClick={() => onSelectTutorial && onSelectTutorial(item as any)}
-                          >
-                            <div className="flex items-start gap-4">
-                              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                                <Play className="w-5 h-5 fill-current" />
-                              </div>
-
-                              <div className="flex-1 min-w-0">
-                                <div className="font-bold text-xs text-slate-900 dark:text-zinc-200 truncate mb-1 group-hover:text-emerald-600 transition-colors uppercase tracking-tight">
-                                  {item.title}
-                                </div>
-
-                                <div className="flex items-center gap-1.5 mb-2">
-                                  <Badge
-                                    variant="outline"
-                                    className="text-[8px] border-emerald-200/50 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-500/10 font-bold uppercase tracking-widest px-1.5 py-0 h-4"
-                                  >
-                                    {item.category}
-                                  </Badge>
-                                </div>
-
-                                <div className="flex items-center gap-2 text-[9px] font-bold text-zinc-400 uppercase tracking-widest opacity-70">
-                                  <Clock className="w-3 h-3" />
-                                  <span>{item.duration}</span>
-                                  <span className="w-1 h-1 rounded-full bg-zinc-200" />
-                                  <span>{formatTimeAgo(item.timestamp)}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center py-10 opacity-50">
-                  <div className="w-12 h-12 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center mb-4">
-                    <Play className="w-6 h-6 text-zinc-300" />
-                  </div>
-                  <h4 className="font-bold text-xs text-slate-900 dark:text-white mb-1 uppercase tracking-tight">Nenhuma aula</h4>
-                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">
-                    Assista tutoriais para ver aqui.
-                  </p>
-                </div>
-              )}
-            </TabsContent>
 
             <TabsContent value="favorites" className="h-full m-0 px-5 pb-5">
               {favoritesCount > 0 ? (

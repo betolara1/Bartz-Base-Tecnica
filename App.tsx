@@ -39,7 +39,7 @@ import {
   PieceData,
 } from "./data/catalog";
 import { TutorialData } from "./data/tutorials";
-import { addToHistory, addTutorialToHistory } from "./utils/history";
+import { addToHistory } from "./utils/history";
 import { acabamentosData } from "./data/acabamentos";
 
 type ViewMode = "grid" | "list";
@@ -142,13 +142,7 @@ function AppContent() {
   };
 
   const handleTutorialSelect = (tutorial: TutorialData) => {
-    addTutorialToHistory({
-      id: tutorial.id,
-      title: tutorial.title,
-      category: tutorial.category,
-      subcategory: tutorial.subcategory,
-      duration: tutorial.duration
-    });
+    // Only used to open the modal now. History is no longer tracked.
   };
 
   const clearFilters = () => {
@@ -471,19 +465,6 @@ function AppContent() {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Device Preview */}
-              <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                {([{ v: 'desktop', Icon: Monitor }, { v: 'tablet', Icon: Tablet }, { v: 'mobile', Icon: Smartphone }] as const).map(({ v, Icon }) => (
-                  <button
-                    key={v}
-                    onClick={() => setDevicePreview(v)}
-                    className={`p-2 rounded-lg transition-all ${devicePreview === v ? 'bg-white dark:bg-zinc-700 shadow-sm text-slate-900 dark:text-white' : 'text-zinc-400 hover:text-zinc-600'}`}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </button>
-                ))}
-              </div>
-
               {/* View Mode */}
               <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800">
                 {([{ v: 'grid', Icon: Grid3X3 }, { v: 'list', Icon: List }] as const).map(({ v, Icon }) => (
