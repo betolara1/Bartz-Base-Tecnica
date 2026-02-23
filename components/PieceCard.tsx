@@ -261,9 +261,9 @@ function getShelfRegulation(piece: PieceData): string[] {
 
 function getDimensionItems(dimensions: { largura: number; altura: number; profundidade: number }, type: 'min' | 'max'): string[] {
   return [
-    `L: ${dimensions.largura}mm`,
-    `A: ${dimensions.altura}mm`,
-    `P: ${dimensions.profundidade}mm`
+    `Largura: ${dimensions.largura}mm`,
+    `Altura: ${dimensions.altura}mm`,
+    `Profundidade: ${dimensions.profundidade}mm`
   ];
 }
 
