@@ -7,7 +7,7 @@ import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { 
+import {
   Palette,
   Search,
   Filter,
@@ -22,8 +22,8 @@ import {
   Image,
   ExternalLink
 } from "lucide-react";
-import { 
-  acabamentosData, 
+import {
+  acabamentosData,
   AcabamentoData,
   getMarcas,
   getAcabamentosByMarca,
@@ -41,12 +41,12 @@ interface AcabamentosSelectorProps {
   compact?: boolean;
 }
 
-export function AcabamentosSelector({ 
-  categoria, 
-  selectedAcabamentos = [], 
+export function AcabamentosSelector({
+  categoria,
+  selectedAcabamentos = [],
   onAcabamentosChange,
   readonly = false,
-  compact = false 
+  compact = false
 }: AcabamentosSelectorProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMarca, setSelectedMarca] = useState<string>("all");
@@ -63,20 +63,20 @@ export function AcabamentosSelector({
       const cat = categoria.toLowerCase();
       filtered = filtered.filter(acabamento => {
         if (cat === "portas") {
-          return acabamento.aplicacoes.some(app => 
-            app.toLowerCase().includes("porta") || 
+          return acabamento.aplicacoes.some(app =>
+            app.toLowerCase().includes("porta") ||
             app.toLowerCase().includes("frente")
           );
         }
         if (cat === "gavetas") {
-          return acabamento.aplicacoes.some(app => 
-            app.toLowerCase().includes("gaveta") || 
+          return acabamento.aplicacoes.some(app =>
+            app.toLowerCase().includes("gaveta") ||
             app.toLowerCase().includes("frente")
           );
         }
         if (cat === "prateleiras" || cat === "armários") {
-          return acabamento.aplicacoes.some(app => 
-            app.toLowerCase().includes("painel") || 
+          return acabamento.aplicacoes.some(app =>
+            app.toLowerCase().includes("painel") ||
             app.toLowerCase().includes("tamponamento") ||
             app.toLowerCase().includes("caixaria")
           );
@@ -97,7 +97,7 @@ export function AcabamentosSelector({
     if (selectedMaterial !== "all" && selectedEspessura !== "all") {
       filtered = getAcabamentosByMaterialEEspessura(selectedMaterial, selectedEspessura as number);
     } else if (selectedMaterial !== "all") {
-      filtered = filtered.filter(acabamento => 
+      filtered = filtered.filter(acabamento =>
         acabamento.materiais.some(mat => mat.tipo === selectedMaterial)
       );
     }
@@ -112,12 +112,12 @@ export function AcabamentosSelector({
 
   const toggleAcabamento = (acabamentoId: string) => {
     if (readonly) return;
-    
+
     const isSelected = selectedAcabamentos.includes(acabamentoId);
     const newSelection = isSelected
       ? selectedAcabamentos.filter(id => id !== acabamentoId)
       : [...selectedAcabamentos, acabamentoId];
-    
+
     onAcabamentosChange?.(newSelection);
   };
 
@@ -128,29 +128,10 @@ export function AcabamentosSelector({
     setSelectedEspessura("all");
   };
 
-  // Gerar URL de imagem do acabamento baseada na marca e nome
-  const getAcabamentoImageUrl = (acabamento: AcabamentoData): string => {
-    // URLs reais dos sites dos fornecedores (simuladas para o exemplo)
-    const baseUrls = {
-      'Duratex': 'https://www.duratex.com.br/produtos/acabamentos/',
-      'Arauco': 'https://www.arauco.com/br/produtos/paineis/',
-      'Guararapes': 'https://www.guararapes.com.br/produtos/', 
-      'Sudati': 'https://www.sudati.com.br/acabamentos/',
-      'Fibraplac': 'https://www.fibraplac.com.br/produtos/'
-    };
-    
-    // Simular estrutura de URL baseada no nome do acabamento
-    const slug = acabamento.nome.toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[àáâãäå]/g, 'a')
-      .replace(/[èéêë]/g, 'e')
-      .replace(/[ìíîï]/g, 'i')
-      .replace(/[òóôõö]/g, 'o')
-      .replace(/[ùúûü]/g, 'u')
-      .replace(/[ç]/g, 'c')
-      .replace(/[^a-z0-9-]/g, '');
-    
-    return `${baseUrls[acabamento.marca as keyof typeof baseUrls] || ''}${slug}.jpg`;
+  // Gerar URL de imagem do acabamento baseada na marca e nome (agora local na pasta public/cores)
+  const getAcabamentoImageUrl = (acabamento: AcabamentoData, espessura?: number | "all", extension: "jpg" | "png" = "jpg"): string => {
+    const folderEspessura = espessura && espessura !== "all" ? `${espessura}mm` : '18mm';
+    return `/cores/${folderEspessura}/${acabamento.nome}.${extension}`;
   };
 
   // Gerar cor de fallback se não houver imagem
@@ -180,7 +161,7 @@ export function AcabamentosSelector({
       ébano: '#2F4F4F',
       louro: '#CD853F'
     };
-    
+
     const lowerName = nome.toLowerCase();
     for (const [key, color] of Object.entries(colors)) {
       if (lowerName.includes(key)) {
@@ -191,72 +172,67 @@ export function AcabamentosSelector({
   };
 
   // Componente de preview de acabamento com imagem
-  const AcabamentoImagePreview = ({ acabamento, className = "" }: { 
-    acabamento: AcabamentoData; 
-    className?: string; 
+  const AcabamentoImagePreview = ({ acabamento, className = "", espessura }: {
+    acabamento: AcabamentoData;
+    className?: string;
+    espessura?: number | "all";
   }) => {
-    const imageUrl = getAcabamentoImageUrl(acabamento);
+    const [imageExtension, setImageExtension] = useState<"jpg" | "png" | "error">("jpg");
+    const imageUrl = getAcabamentoImageUrl(acabamento, espessura, imageExtension === "error" ? "jpg" : imageExtension);
     const fallbackColor = getColorFromName(acabamento.nome);
-    
+
+    const handleImageError = () => {
+      if (imageExtension === "jpg") {
+        setImageExtension("png"); // Try PNG if JPG fails
+      } else if (imageExtension === "png") {
+        setImageExtension("error"); // Both failed
+      }
+    };
+
     return (
-      <div className={`relative rounded-md border-2 border-white shadow-sm overflow-hidden ${className}`}>
-        <ImageWithFallback
-          src={imageUrl}
-          alt={`Acabamento ${acabamento.nome} - ${acabamento.marca}`}
-          className="w-full h-full object-cover"
-          style={{ backgroundColor: fallbackColor }}
-        />
+      <div className={`relative rounded-md border-2 border-white shadow-sm overflow-hidden ${className}`} style={imageExtension === "error" ? { backgroundColor: fallbackColor } : undefined}>
+        {imageExtension !== "error" && (
+          <img
+            src={imageUrl}
+            alt={`Acabamento ${acabamento.nome}`}
+            className="w-full h-full object-cover"
+            onError={handleImageError}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-200" />
-        
-        {/* Indicador de imagem real vs cor simulada */}
-        <div className="absolute top-1 right-1">
-          <div className="w-2 h-2 rounded-full bg-green-500 border border-white shadow-sm" 
-               title="Imagem do fornecedor disponível" />
-        </div>
       </div>
     );
   };
 
   // Componente de preview compacto
-  const AcabamentoCompactPreview = ({ acabamento }: { acabamento: AcabamentoData }) => (
+  const AcabamentoCompactPreview = ({ acabamento, espessura }: { acabamento: AcabamentoData, espessura?: number | "all" }) => (
     <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-      <AcabamentoImagePreview acabamento={acabamento} className="w-8 h-8 flex-shrink-0" />
+      <AcabamentoImagePreview acabamento={acabamento} espessura={espessura} className="w-8 h-8 flex-shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm truncate">{acabamento.nome}</p>
-        <div className="flex items-center gap-2">
-          <p className="text-xs text-muted-foreground">{acabamento.marca}</p>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0 opacity-60 hover:opacity-100"
-            onClick={() => window.open(getAcabamentoImageUrl(acabamento), '_blank')}
-            title="Ver no site do fornecedor"
-          >
-            <ExternalLink className="w-3 h-3" />
-          </Button>
-        </div>
+        <p className="text-xs text-muted-foreground">{acabamento.marca}</p>
       </div>
     </div>
   );
 
   // Componente de preview detalhado
-  const AcabamentoDetailedPreview = ({ acabamento, isSelected, onToggle }: {
+  const AcabamentoDetailedPreview = ({ acabamento, isSelected, onToggle, espessura }: {
     acabamento: AcabamentoData;
     isSelected: boolean;
     onToggle: () => void;
+    espessura?: number | "all";
   }) => (
-    <Card 
-      className={`cursor-pointer transition-all duration-200 ${
-        isSelected 
-          ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950/20' 
-          : 'hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600'
-      } ${readonly ? 'cursor-default' : ''}`}
+    <Card
+      className={`cursor-pointer transition-all duration-200 ${isSelected
+        ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950/20'
+        : 'hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600'
+        } ${readonly ? 'cursor-default' : ''}`}
       onClick={readonly ? undefined : onToggle}
     >
       <CardContent className="p-4">
         <div className="flex items-start gap-3 mb-3">
-          <AcabamentoImagePreview acabamento={acabamento} className="w-16 h-16 flex-shrink-0" />
-          
+          <AcabamentoImagePreview acabamento={acabamento} espessura={espessura} className="w-16 h-16 flex-shrink-0" />
+
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1 min-w-0">
@@ -283,7 +259,7 @@ export function AcabamentosSelector({
             </div>
           </div>
         </div>
-        
+
         <div className="space-y-3">
           <div className="flex flex-wrap gap-1">
             {acabamento.materiais.map((material, idx) => (
@@ -292,7 +268,7 @@ export function AcabamentosSelector({
               </SmartBadge>
             ))}
           </div>
-          
+
           <div className="flex flex-wrap gap-1">
             {acabamento.aplicacoes.slice(0, 2).map((aplicacao, idx) => (
               <SmartBadge key={idx} type="new" className="text-xs">
@@ -334,7 +310,7 @@ export function AcabamentosSelector({
                 </SmartBadge>
               )}
             </CardTitle>
-            
+
             {compatibleAcabamentos.length > 0 && (
               <Dialog>
                 <DialogTrigger asChild>
@@ -355,7 +331,7 @@ export function AcabamentosSelector({
                       )}
                     </DialogTitle>
                   </DialogHeader>
-                  
+
                   <AcabamentosSelector
                     categoria={categoria}
                     selectedAcabamentos={selectedAcabamentos}
@@ -368,14 +344,14 @@ export function AcabamentosSelector({
             )}
           </div>
         </CardHeader>
-        
+
         <CardContent className="pt-0">
           {selectedAcabamentosData.length > 0 ? (
             <div className="grid grid-cols-1 gap-3">
               {selectedAcabamentosData.slice(0, 4).map(acabamento => (
-                <AcabamentoCompactPreview key={acabamento.id} acabamento={acabamento} />
+                <AcabamentoCompactPreview key={acabamento.id} acabamento={acabamento} espessura={selectedEspessura} />
               ))}
-              
+
               {selectedAcabamentosData.length > 4 && (
                 <div className="text-center pt-2">
                   <SmartBadge type="frequent">
@@ -406,9 +382,9 @@ export function AcabamentosSelector({
               <Filter className="w-4 h-4" />
               Filtros de Acabamentos
             </h4>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={clearFilters}
               className="text-xs"
             >
@@ -416,7 +392,7 @@ export function AcabamentosSelector({
               Limpar
             </Button>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Buscar acabamento</Label>
@@ -448,8 +424,8 @@ export function AcabamentosSelector({
 
             <div className="space-y-2">
               <Label>Material</Label>
-              <Select 
-                value={selectedMaterial} 
+              <Select
+                value={selectedMaterial}
                 onValueChange={(value: any) => setSelectedMaterial(value)}
               >
                 <SelectTrigger>
@@ -465,8 +441,8 @@ export function AcabamentosSelector({
 
             <div className="space-y-2">
               <Label>Espessura (mm)</Label>
-              <Select 
-                value={selectedEspessura.toString()} 
+              <Select
+                value={selectedEspessura.toString()}
                 onValueChange={(value) => setSelectedEspessura(value === "all" ? "all" : parseInt(value))}
               >
                 <SelectTrigger>
@@ -503,10 +479,10 @@ export function AcabamentosSelector({
           <h4 className="font-medium">
             Catálogo de Acabamentos ({compatibleAcabamentos.length} disponíveis)
           </h4>
-          
+
           {!readonly && selectedAcabamentos.length > 0 && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => onAcabamentosChange?.([])}
             >
@@ -521,6 +497,7 @@ export function AcabamentosSelector({
               <AcabamentoDetailedPreview
                 key={acabamento.id}
                 acabamento={acabamento}
+                espessura={selectedEspessura}
                 isSelected={selectedAcabamentos.includes(acabamento.id)}
                 onToggle={() => toggleAcabamento(acabamento.id)}
               />
@@ -549,11 +526,11 @@ export function AcabamentosSelector({
               Acabamentos Selecionados ({selectedAcabamentosData.length})
             </h4>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {selectedAcabamentosData.map(acabamento => (
               <div key={acabamento.id} className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 rounded border">
-                <AcabamentoImagePreview acabamento={acabamento} className="w-6 h-6 flex-shrink-0" />
+                <AcabamentoImagePreview acabamento={acabamento} espessura={selectedEspessura} className="w-6 h-6 flex-shrink-0" />
                 <span className="text-sm font-medium truncate flex-1">{acabamento.nome}</span>
                 <Button
                   variant="ghost"

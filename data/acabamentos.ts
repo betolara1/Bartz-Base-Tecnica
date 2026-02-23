@@ -608,23 +608,93 @@ export const acabamentosData: AcabamentoData[] = [
       }
     ],
     aplicacoes: ["Portas", "Frentes de gavetas", "Painéis", "Tamponamentos", "Caixarias"]
+  },
+  {
+    id: "ameixa-negra",
+    nome: "Ameixa Negra",
+    marca: "Genérica",
+    materiais: [{ tipo: "MDF", espessuras: [18] }],
+    aplicacoes: ["Portas", "Frentes de gavetas", "Painéis"]
+  },
+  {
+    id: "carvalho-latino",
+    nome: "Carvalho Latino",
+    marca: "Genérica",
+    materiais: [{ tipo: "MDF", espessuras: [18] }],
+    aplicacoes: ["Portas", "Frentes de gavetas", "Painéis"]
+  },
+  {
+    id: "ebano-chess",
+    nome: "Ébano Chess",
+    marca: "Genérica",
+    materiais: [{ tipo: "MDF", espessuras: [18] }],
+    aplicacoes: ["Portas", "Frentes de gavetas", "Painéis"]
+  },
+  {
+    id: "azul-petr-lio",
+    nome: "Azul Petrólio",
+    marca: "Diversas",
+    materiais: [{ tipo: "MDF", espessuras: [18] }],
+    aplicacoes: ["Portas", "Frentes de gavetas", "Painéis"]
+  },
+  {
+    id: "branco",
+    nome: "Branco",
+    marca: "Diversas",
+    materiais: [{ tipo: "MDF", espessuras: [18] }],
+    aplicacoes: ["Portas", "Frentes de gavetas", "Painéis"]
+  },
+  {
+    id: "cabiuna-nobre",
+    nome: "Cabiuna Nobre",
+    marca: "Diversas",
+    materiais: [{ tipo: "MDF", espessuras: [18] }],
+    aplicacoes: ["Portas", "Frentes de gavetas", "Painéis"]
+  },
+  {
+    id: "cancun",
+    nome: "Cancun",
+    marca: "Diversas",
+    materiais: [{ tipo: "MDF", espessuras: [18] }],
+    aplicacoes: ["Portas", "Frentes de gavetas", "Painéis"]
+  },
+  {
+    id: "cristallo-opala",
+    nome: "Cristallo Opala",
+    marca: "Diversas",
+    materiais: [{ tipo: "MDF", espessuras: [18] }],
+    aplicacoes: ["Portas", "Frentes de gavetas", "Painéis"]
+  },
+  {
+    id: "milkshake",
+    nome: "MilkShake",
+    marca: "Diversas",
+    materiais: [{ tipo: "MDF", espessuras: [18] }],
+    aplicacoes: ["Portas", "Frentes de gavetas", "Painéis"]
+  },
+  {
+    id: "pau-ferro",
+    nome: "Pau Ferro",
+    marca: "Diversas",
+    materiais: [{ tipo: "MDF", espessuras: [18] }],
+    aplicacoes: ["Portas", "Frentes de gavetas", "Painéis"]
   }
 ];
 
 // Função para buscar acabamentos por marca
 export function getAcabamentosByMarca(marca: string): AcabamentoData[] {
-  return acabamentosData.filter(acabamento => 
+  return acabamentosData.filter(acabamento =>
     acabamento.marca.toLowerCase() === marca.toLowerCase()
   );
 }
 
 // Função para buscar acabamentos por material e espessura
 export function getAcabamentosByMaterialEEspessura(
-  material: "MDF" | "MDP", 
+  material: "MDF" | "MDP",
   espessura: number
 ): AcabamentoData[] {
   return acabamentosData.filter(acabamento =>
-    acabamento.materiais.some(mat => 
+    acabamento.materiais.some(mat =>
       mat.tipo === material && mat.espessuras.includes(espessura)
     )
   );
@@ -633,7 +703,7 @@ export function getAcabamentosByMaterialEEspessura(
 // Função para buscar acabamentos por aplicação
 export function getAcabamentosByAplicacao(aplicacao: string): AcabamentoData[] {
   return acabamentosData.filter(acabamento =>
-    acabamento.aplicacoes.some(app => 
+    acabamento.aplicacoes.some(app =>
       app.toLowerCase().includes(aplicacao.toLowerCase())
     )
   );
@@ -664,9 +734,9 @@ export function getAplicacoes(): string[] {
 // Função para buscar acabamentos (busca geral)
 export function searchAcabamentos(query: string): AcabamentoData[] {
   const lowerQuery = query.toLowerCase().trim();
-  
+
   if (!lowerQuery) return acabamentosData;
-  
+
   return acabamentosData.filter(acabamento =>
     acabamento.nome.toLowerCase().includes(lowerQuery) ||
     acabamento.marca.toLowerCase().includes(lowerQuery) ||
@@ -694,12 +764,12 @@ export function getAcabamentosStats(): AcabamentosStats {
   acabamentosData.forEach(acabamento => {
     // Stats por marca
     stats.porMarca[acabamento.marca] = (stats.porMarca[acabamento.marca] || 0) + 1;
-    
+
     // Stats por material
     acabamento.materiais.forEach(material => {
       stats.porMaterial[material.tipo] = (stats.porMaterial[material.tipo] || 0) + 1;
     });
-    
+
     // Stats por aplicação
     acabamento.aplicacoes.forEach(aplicacao => {
       stats.porAplicacao[aplicacao] = (stats.porAplicacao[aplicacao] || 0) + 1;

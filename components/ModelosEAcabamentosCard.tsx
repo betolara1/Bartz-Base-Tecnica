@@ -267,7 +267,7 @@ export function ModelosEAcabamentosCard({
               }
             });
 
-            setAcabamentos(allAcabamentos.slice(0, 12)); // Limitar a 12 acabamentos
+            setAcabamentos(allAcabamentos); // Show all compatible finishes
           }
         } else {
           // Fallback para modelo genérico se não encontrar específico
@@ -350,12 +350,24 @@ export function ModelosEAcabamentosCard({
   }, [selectedThickness, model]);
 
   // Componente para acabamento real da base de dados
-  const AcabamentoCard = ({ acabamento }: { acabamento: AcabamentoData }) => {
+  const AcabamentoCard = ({ acabamento, espessuraEscolhida }: { acabamento: AcabamentoData, espessuraEscolhida: number | null }) => {
+    const [imageExtension, setImageExtension] = useState<"jpg" | "png" | "error">("jpg");
     const backgroundColor = acabamento.colorHex || getColorFromFinish(
       acabamento.nome,
       acabamento.materiais.map(m => m.tipo)
     );
     const textColor = getContrastTextColor(backgroundColor);
+
+    const folderEspessura = espessuraEscolhida ? `${espessuraEscolhida}mm` : '18mm';
+    const imageUrl = `/cores/${folderEspessura}/${acabamento.nome}.${imageExtension}`;
+
+    const handleImageError = () => {
+      if (imageExtension === "jpg") {
+        setImageExtension("png"); // Try PNG if JPG fails
+      } else if (imageExtension === "png") {
+        setImageExtension("error"); // Both failed, fallback to CSS
+      }
+    };
 
     return (
       <div className="flex flex-col items-center gap-2 p-1.5 border border-slate-100 rounded-lg bg-white hover:border-amber-300 hover:shadow-md transition-all duration-200 group cursor-help">
@@ -363,12 +375,23 @@ export function ModelosEAcabamentosCard({
           className="w-full aspect-square rounded-md border border-slate-200 shadow-sm relative overflow-hidden flex-shrink-0"
           style={{ backgroundColor }}
         >
+          {/* Se a imagem ainda não deu erro definitivo, tentamos carregá-la */}
+          {imageExtension !== "error" && (
+            <img
+              src={imageUrl}
+              alt={acabamento.nome}
+              className="absolute inset-0 w-full h-full object-cover z-10"
+              onError={handleImageError}
+            />
+          )}
+
+          {/* Fallback de cor/textura gerado via CSS, fica visível se a imagem falhar */}
           {getTextureOverlay(acabamento.nome)}
 
-          {/* Iniciais aparecem no hover */}
+          {/* Iniciais aparecem no hover sobre a imagem ou a cor */}
           <div
-            className="absolute inset-0 flex items-center justify-center text-[10px] font-bold opacity-0 group-hover:opacity-100 bg-black/10 transition-opacity duration-200"
-            style={{ color: textColor }}
+            className="absolute inset-0 flex items-center justify-center text-[10px] font-bold opacity-0 group-hover:opacity-100 bg-black/30 transition-opacity duration-200 z-20"
+            style={{ color: '#ffffff' }}
           >
             {acabamento.nome.substring(0, 2).toUpperCase()}
           </div>
@@ -716,7 +739,7 @@ export function ModelosEAcabamentosCard({
                 {acabamentos.length > 0 ? (
                   <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3">
                     {acabamentos.map((acabamento) => (
-                      <AcabamentoCard key={acabamento.id} acabamento={acabamento} />
+                      <AcabamentoCard key={acabamento.id} acabamento={acabamento} espessuraEscolhida={selectedThickness} />
                     ))}
                   </div>
                 ) : (
