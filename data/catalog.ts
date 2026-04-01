@@ -155,6 +155,8 @@ const baseCatalogData: PieceData[] = [
     fixos: { largura: false, altura: false, profundidade: true },
     popularidade: 5,
     relatedIds: ["basic-inferiores"],
+    links: { video: "/videos/linha-basic-superiores.gif" },
+    image: "/fotos/basic-line-superiores.png",
     tags: ["basic", "superior", "aéreo", "cozinha"]
   }
 ];

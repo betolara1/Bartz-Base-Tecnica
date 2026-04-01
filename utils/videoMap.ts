@@ -19,6 +19,7 @@ export const pieceToGifFilename: Record<string, string | string[]> = {
     "geometria-circular": "geometria-circular",
     "geometria-livre": ["como-usar-geometria-livre", "geometria-livre", "curvas-geometria-livre"],
     "basic-inferiores": "linha-basic-inferiores",
+    "basic-superiores": "linha-basic-superiores",
 };
 
 /**

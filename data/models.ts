@@ -99,52 +99,56 @@ export interface CompositionOption {
 // Acabamentos compartilhados para Curvos e Muxarabi (45 cores para 18mm, 19 para 25mm)
 const SHARED_CURVO_MUXARABI_FINISHES: FinishOption[] = [
   { id: "branco-tx", name: "Branco", color: "Branco", colorHex: "#FFFFFF", texture: "liso", available: true, standard: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
-  { id: "ameixa-negra", name: "Ameixa Negra", color: "Madeira", colorHex: "#5D4037", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
-  { id: "amazonia", name: "Amazônia", color: "Verde", colorHex: "#2E4D2E", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "asti", name: "Asti", color: "Madeira", colorHex: "#D2B48C", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
-  { id: "atlantica", name: "Atlântica", color: "Azul", colorHex: "#4A708B", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
-  { id: "azul-petroleo", name: "Azul Petróleo", color: "Azul", colorHex: "#004751", texture: "liso", available: true, thicknesses: [18, 37] },
-  { id: "beige", name: "Beige", color: "Bege", colorHex: "#F5F5DC", texture: "liso", available: true, thicknesses: [15, 18, 25, 37] },
-  { id: "bianco-ravena", name: "Bianco Ravena", color: "Madeira", colorHex: "#F5F5F5", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37] },
-  { id: "bronze", name: "Bronze", color: "Metálico", colorHex: "#8B5A2B", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "cabiuna-nobre", name: "Cabiuna Nobre", color: "Madeira", colorHex: "#3D2B1F", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
-  { id: "camelo", name: "Camelo", color: "Couro", colorHex: "#996644", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "cancun", name: "Cancun", color: "Madeira", colorHex: "#8B7D6B", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "carvalho-latino", name: "Carvalho Latino", color: "Madeira", colorHex: "#D2B48C", texture: "texturizado", available: true, thicknesses: [18, 37] },
+  { id: "acai", name: "Açaí", color: "Roxo/Vermelho", colorHex: "#611F1D", texture: "liso", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "ameixa-negra", name: "Ameixa Negra", color: "Madeira", colorHex: "#5D4037", texture: "texturizado", available: true, thicknesses: [18, 25, 37], materials: ["mdf"] },
+  { id: "amazonia", name: "Amazônia", color: "Verde", colorHex: "#2E4D2E", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "art", name: "Art", color: "Madeira", colorHex: "#D2B48C", texture: "texturizado", available: true, thicknesses: [18, 25, 37], materials: ["mdf"] },
+  { id: "atlantica", name: "Atlântica", color: "Azul", colorHex: "#4A708B", texture: "texturizado", available: true, thicknesses: [18, 25, 37], materials: ["mdf", "mdp"] },
+  { id: "azul-petroleo", name: "Azul Petróleo", color: "Azul", colorHex: "#004751", texture: "liso", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "beige", name: "Beige", color: "Bege", colorHex: "#F5F5DC", texture: "liso", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
+  { id: "branco-supremo", name: "Branco Supremo", color: "Branco", colorHex: "#FFFFFF", texture: "liso", available: true, thicknesses: [15, 18], materials: ["mdp"] },
+  { id: "bianco-ravena", name: "Bianco Ravena", color: "Madeira", colorHex: "#F5F5F5", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
+  { id: "bronze", name: "Bronze", color: "Metálico", colorHex: "#8B5A2B", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "catuai-nobre", name: "Catuaí Nobre", color: "Madeira", colorHex: "#3D2B1F", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
+  { id: "camelo", name: "Camelo", color: "Couro", colorHex: "#996644", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "cancun", name: "Cancun", color: "Madeira", colorHex: "#8B7D6B", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "carvalho-latino", name: "Carvalho Latino", color: "Madeira", colorHex: "#D2B48C", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
   { id: "carvalho-mel", name: "Carvalho Mel", color: "Madeira", colorHex: "#C19A6B", texture: "texturizado", available: true, thicknesses: [15, 18], materials: ["mdp"] },
-  { id: "carvalho-natural", name: "Carvalho Natural", color: "Madeira", colorHex: "#E3C9A6", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37] },
-  { id: "cinza-puro", name: "Cinza Puro", color: "Cinza", colorHex: "#808080", texture: "liso", available: true, thicknesses: [18, 37] },
-  { id: "corazzi", name: "Corazzi", color: "Madeira", colorHex: "#A0866A", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
-  { id: "cristallo-branco-diamante", name: "Cristallo Branco Diamante", color: "Branco", colorHex: "#FFFFFF", texture: "brilhante", available: true, thicknesses: [18, 37] },
-  { id: "cristallo-cinza-sagrado", name: "Cristallo Cinza Sagrado", color: "Cinza", colorHex: "#A5A5A5", texture: "brilhante", available: true, thicknesses: [18, 37] },
-  { id: "cristallo-gianduia", name: "Cristallo Gianduia", color: "Bege", colorHex: "#9B938A", texture: "brilhante", available: true, thicknesses: [18, 37] },
-  { id: "cristallo-opalla", name: "Cristallo Opalla", color: "Off-white", colorHex: "#E9E0D2", texture: "brilhante", available: true, thicknesses: [18, 37] },
-  { id: "cristallo-preto", name: "Cristallo Preto", color: "Preto", colorHex: "#1A1A1A", texture: "brilhante", available: true, thicknesses: [18, 37] },
-  { id: "damasco", name: "Damasco", color: "Madeira", colorHex: "#FFCBA4", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "ebano", name: "Ébano Chess", color: "Madeira", colorHex: "#2F4F4F", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
-  { id: "glamour", name: "Glamour", color: "Madeira", colorHex: "#8B7355", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
-  { id: "imbuia", name: "Imbuia", color: "Madeira", colorHex: "#8B6914", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "jalapao", name: "Jalapão", color: "Madeira", colorHex: "#8B4513", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "linum", name: "Linum", color: "Trama", colorHex: "#CDBA96", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
-  { id: "louro-freijo", name: "Louro Freijó", color: "Madeira", colorHex: "#CD853F", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "manhattan", name: "Manhattan", color: "Cinza", colorHex: "#696969", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "marmo", name: "Marmo", color: "Mármore", colorHex: "#E8E8E8", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "milk-shake", name: "MilkShake", color: "Off-white", colorHex: "#F5F5F5", texture: "liso", available: true, thicknesses: [18, 37] },
-  { id: "mint", name: "Mint", color: "Verde", colorHex: "#98FB98", texture: "liso", available: true, thicknesses: [18, 37] },
-  { id: "niquel", name: "Níquel", color: "Cinza", colorHex: "#BDBDBD", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "nogueira-caiena", name: "Nogueira Caiena", color: "Madeira", colorHex: "#6B4226", texture: "texturizado", available: true, thicknesses: [18, 37] },
+  { id: "carvalho-natural", name: "Carvalho Natural", color: "Madeira", colorHex: "#E3C9A6", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
+  { id: "cinza-puro", name: "Cinza Puro", color: "Cinza", colorHex: "#808080", texture: "liso", available: true, thicknesses: [18, 37], materials: ["mdf", "mdp"] },
+  { id: "corazzi", name: "Corazzi", color: "Madeira", colorHex: "#A0866A", texture: "texturizado", available: true, thicknesses: [18, 25, 37], materials: ["mdf"] },
+  { id: "cristallo-branco-diamante", name: "Cristallo Branco Diamante", color: "Branco", colorHex: "#FFFFFF", texture: "brilhante", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "cristallo-cinza-sagrado", name: "Cristallo Cinza Sagrado", color: "Cinza", colorHex: "#A5A5A5", texture: "brilhante", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "cristallo-gianduia", name: "Cristallo Gianduia", color: "Bege", colorHex: "#9B938A", texture: "brilhante", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "cristallo-opalla", name: "Cristallo Opalla", color: "Off-white", colorHex: "#E9E0D2", texture: "brilhante", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "cristallo-preto", name: "Cristallo Preto", color: "Preto", colorHex: "#1A1A1A", texture: "brilhante", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "damasco", name: "Damasco", color: "Madeira", colorHex: "#FFCBA4", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "ebano", name: "Ébano Chess", color: "Madeira", colorHex: "#2F4F4F", texture: "texturizado", available: true, thicknesses: [18, 25, 37], materials: ["mdf"] },
+  { id: "glamour", name: "Glamour", color: "Madeira", colorHex: "#8B7355", texture: "texturizado", available: true, thicknesses: [18, 25, 37], materials: ["mdf"] },
+  { id: "grafito", name: "Grafito", color: "Cinza Escuro", colorHex: "#4B4B4D", texture: "liso", available: true, thicknesses: [15, 18], materials: ["mdp"] },
+  { id: "imbuia", name: "Imbuia", color: "Madeira", colorHex: "#8B6914", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "jalapao", name: "Jalapão", color: "Madeira", colorHex: "#8B4513", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "linum", name: "Linum", color: "Trama", colorHex: "#CDBA96", texture: "texturizado", available: true, thicknesses: [18, 25, 37], materials: ["mdf"] },
+  { id: "louro-freijo", name: "Louro Freijó", color: "Madeira", colorHex: "#CD853F", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf", "mdp"] },
+  { id: "manhattan", name: "Manhattan", color: "Cinza", colorHex: "#696969", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "marmo", name: "Marmo", color: "Mármore", colorHex: "#E8E8E8", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "milk-shake", name: "MilkShake", color: "Off-white", colorHex: "#F5F5F5", texture: "liso", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "mint", name: "Mint", color: "Verde", colorHex: "#98FB98", texture: "liso", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "niquel", name: "Níquel", color: "Cinza", colorHex: "#BDBDBD", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "nogueira-caiena", name: "Nogueira Caiena", color: "Madeira", colorHex: "#6B4226", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
   { id: "panna", name: "Panna", color: "Off-white", colorHex: "#E6E6FA", texture: "liso", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
-  { id: "pau-ferro", name: "Pau Ferro", color: "Madeira", colorHex: "#4B3621", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
-  { id: "petar", name: "Petar", color: "Cinza", colorHex: "#B8860B", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
-  { id: "petra", name: "Petra", color: "Cinza", colorHex: "#696969", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "quartzo", name: "Quartzo", color: "Cinza", colorHex: "#E6E6FA", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
-  { id: "raphia", name: "Raphia", color: "Trama", colorHex: "#6E7B68", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "reali", name: "Reali", color: "Madeira", colorHex: "#8B7355", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "santiago", name: "Santiago", color: "Madeira", colorHex: "#D2B48C", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37] },
-  { id: "serrano", name: "Serrano", color: "Madeira", colorHex: "#B8860B", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
-  { id: "urbi", name: "Urbi", color: "Cinza", colorHex: "#D1D5DB", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
-  { id: "vulcano", name: "Vulcano", color: "Madeira", colorHex: "#3E2723", texture: "texturizado", available: true, thicknesses: [18, 37] }
+  { id: "pau-ferro", name: "Pau Ferro", color: "Madeira", colorHex: "#4B3621", texture: "texturizado", available: true, thicknesses: [18, 25, 37], materials: ["mdf", "mdp"] },
+  { id: "petar", name: "Petar", color: "Cinza", colorHex: "#B8860B", texture: "texturizado", available: true, thicknesses: [18, 25, 37], materials: ["mdf"] },
+  { id: "petra", name: "Petra", color: "Cinza", colorHex: "#696969", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "quartzo", name: "Quartzo", color: "Cinza", colorHex: "#E6E6FA", texture: "texturizado", available: true, thicknesses: [18, 25, 37], materials: ["mdf"] },
+  { id: "raphia", name: "Raphia", color: "Trama", colorHex: "#6E7B68", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "reali", name: "Reali", color: "Madeira", colorHex: "#8B7355", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] },
+  { id: "santiago", name: "Santiago", color: "Madeira", colorHex: "#D2B48C", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
+  { id: "savana", name: "Savana", color: "Madeira", colorHex: "#B8860B", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
+  { id: "urbii", name: "Urbii", color: "Cinza", colorHex: "#D1D5DB", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
+  { id: "vulcano", name: "Vulcano", color: "Madeira", colorHex: "#3E2723", texture: "texturizado", available: true, thicknesses: [18, 37], materials: ["mdf"] }
 ];
+
 
 // Dados dos modelos
 export const modelsData: PieceModel[] = [
@@ -531,11 +535,7 @@ export const modelsData: PieceModel[] = [
         { id: "18", codigo: "ESP18", thickness: 18, available: true, standard: false }
       ],
       finishes: SHARED_CURVO_MUXARABI_FINISHES.filter(f => 
-        (f.thicknesses?.includes(15) || f.thicknesses?.includes(18)) && 
-        (
-          (f.id === "carvalho-mel" && f.materials?.includes("mdp")) ||
-          (["branco-tx", "cabiuna-nobre", "panna", "serrano", "urbi"].includes(f.id) && (f.materials?.includes("mdf") || !f.materials))
-        )
+        (f.thicknesses?.includes(15) || f.thicknesses?.includes(18))
       ),
       handleOptions: [
         { 
@@ -600,11 +600,7 @@ export const modelsData: PieceModel[] = [
         { id: "18", codigo: "ESP18", thickness: 18, available: true, standard: false }
       ],
       finishes: SHARED_CURVO_MUXARABI_FINISHES.filter(f => 
-        (f.thicknesses?.includes(15) || f.thicknesses?.includes(18)) && 
-        (
-          (f.id === "carvalho-mel" && f.materials?.includes("mdp")) ||
-          (["branco-tx", "cabiuna-nobre", "panna", "serrano", "urbi"].includes(f.id) && (f.materials?.includes("mdf") || !f.materials))
-        )
+        (f.thicknesses?.includes(15) || f.thicknesses?.includes(18))
       ),
       handleOptions: [
         { 
