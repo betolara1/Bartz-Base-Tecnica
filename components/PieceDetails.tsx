@@ -499,7 +499,6 @@ export function PieceDetails({
                                   </div>
                                 )}
                                 <div className="text-3xl font-black text-slate-900 dark:text-white mb-0.5 tracking-tighter">{esp.thickness}mm</div>
-                                <div className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest opacity-60">REF: {esp.codigo}</div>
                               </div>
                             ))}
                           </div>

@@ -288,24 +288,67 @@ function AppContent() {
 
           {/* Content */}
           {filteredPieces.length > 0 ? (
-            <div className={
-              viewMode === "grid"
-                ? "grid gap-4 grid-cols-1 sm:grid-cols-2"
-                : "space-y-4"
-            }>
-              {filteredPieces.map((piece, index) => (
-                <PieceCard
-                  key={piece.id}
-                  piece={piece}
-                  onSelect={handlePieceSelect}
-                  variant={viewMode}
-                  isAdminMode={isAdminMode}
-                  onToggleVisibility={() => toggleElementVisibility(piece.id)}
-                  isHidden={hiddenElements.has(piece.id)}
-                  waveIndex={waveIndex}
-                  cardIndex={index}
-                />
-              ))}
+            <div className="space-y-8">
+              {(() => {
+                if (selectedCategory === "all" && !searchQuery) {
+                  const piecesByCategory = filteredPieces.reduce((acc, piece) => {
+                    const cat = piece.categoria;
+                    if (!acc[cat]) acc[cat] = [];
+                    acc[cat].push(piece);
+                    return acc;
+                  }, {} as Record<string, PieceData[]>);
+
+                  return Object.entries(piecesByCategory).map(([category, items]) => (
+                    <div key={category} className="space-y-4">
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest border-l-4 border-amber-500 pl-3 py-1">
+                        {category}
+                      </h3>
+                      <div className={
+                        viewMode === "grid"
+                          ? "grid gap-4 grid-cols-1 sm:grid-cols-2"
+                          : "space-y-4"
+                      }>
+                        {items.map((piece, index) => (
+                          <PieceCard
+                            key={piece.id}
+                            piece={piece}
+                            onSelect={handlePieceSelect}
+                            variant={viewMode}
+                            isAdminMode={isAdminMode}
+                            onToggleVisibility={() => toggleElementVisibility(piece.id)}
+                            isHidden={hiddenElements.has(piece.id)}
+                            waveIndex={waveIndex}
+                            cardIndex={index}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                }
+
+                // If a specific category is selected or searching, show original flat layout
+                return (
+                  <div className={
+                    viewMode === "grid"
+                      ? "grid gap-4 grid-cols-1 sm:grid-cols-2"
+                      : "space-y-4"
+                  }>
+                    {filteredPieces.map((piece, index) => (
+                      <PieceCard
+                        key={piece.id}
+                        piece={piece}
+                        onSelect={handlePieceSelect}
+                        variant={viewMode}
+                        isAdminMode={isAdminMode}
+                        onToggleVisibility={() => toggleElementVisibility(piece.id)}
+                        isHidden={hiddenElements.has(piece.id)}
+                        waveIndex={waveIndex}
+                        cardIndex={index}
+                      />
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
           ) : (
             <div className="text-center py-16">
@@ -505,27 +548,80 @@ function AppContent() {
         {/* Content */}
         <main className="flex-1 p-6">
           {filteredPieces.length > 0 ? (
-            <div className={
-              viewMode === "grid"
-                ? `grid gap-6 ${devicePreview === "tablet"
-                  ? "grid-cols-2 lg:grid-cols-3"
-                  : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                }`
-                : "space-y-4"
-            }>
-              {filteredPieces.map((piece, index) => (
-                <PieceCard
-                  key={piece.id}
-                  piece={piece}
-                  onSelect={handlePieceSelect}
-                  variant={viewMode}
-                  isAdminMode={isAdminMode}
-                  onToggleVisibility={() => toggleElementVisibility(piece.id)}
-                  isHidden={hiddenElements.has(piece.id)}
-                  waveIndex={waveIndex}
-                  cardIndex={index}
-                />
-              ))}
+            <div className="space-y-12">
+              {(() => {
+                if (selectedCategory === "all" && !searchQuery) {
+                  const piecesByCategory = filteredPieces.reduce((acc, piece) => {
+                    const cat = piece.categoria;
+                    if (!acc[cat]) acc[cat] = [];
+                    acc[cat].push(piece);
+                    return acc;
+                  }, {} as Record<string, PieceData[]>);
+
+                  return Object.entries(piecesByCategory).map(([category, items]) => (
+                    <div key={category} className="space-y-6">
+                      <div className="flex items-center gap-4">
+                        <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter border-l-4 border-amber-500 pl-4 py-1">
+                          {category}
+                        </h3>
+                        <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+                        <Badge variant="outline" className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                          {items.length} itens
+                        </Badge>
+                      </div>
+                      
+                      <div className={
+                        viewMode === "grid"
+                          ? `grid gap-6 ${devicePreview === "tablet"
+                            ? "grid-cols-2 lg:grid-cols-3"
+                            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                          }`
+                          : "space-y-4"
+                      }>
+                        {items.map((piece, index) => (
+                          <PieceCard
+                            key={piece.id}
+                            piece={piece}
+                            onSelect={handlePieceSelect}
+                            variant={viewMode}
+                            isAdminMode={isAdminMode}
+                            onToggleVisibility={() => toggleElementVisibility(piece.id)}
+                            isHidden={hiddenElements.has(piece.id)}
+                            waveIndex={waveIndex}
+                            cardIndex={index}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                }
+
+                // Default layout for single category or search
+                return (
+                  <div className={
+                    viewMode === "grid"
+                      ? `grid gap-6 ${devicePreview === "tablet"
+                        ? "grid-cols-2 lg:grid-cols-3"
+                        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                      }`
+                      : "space-y-4"
+                  }>
+                    {filteredPieces.map((piece, index) => (
+                      <PieceCard
+                        key={piece.id}
+                        piece={piece}
+                        onSelect={handlePieceSelect}
+                        variant={viewMode}
+                        isAdminMode={isAdminMode}
+                        onToggleVisibility={() => toggleElementVisibility(piece.id)}
+                        isHidden={hiddenElements.has(piece.id)}
+                        waveIndex={waveIndex}
+                        cardIndex={index}
+                      />
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-32 text-center">
