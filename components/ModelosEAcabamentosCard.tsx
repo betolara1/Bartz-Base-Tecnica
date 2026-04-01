@@ -3,16 +3,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Package, Palette, Settings, CheckCircle, Info, Loader2, Shapes } from "lucide-react";
+import { Package, Palette, Settings, CheckCircle, Info, Loader2, Shapes, MousePointer2, DoorOpen, Search, Maximize2, X as CloseIcon } from "lucide-react";
 import {
   getModelForPiece,
   getAvailableMaterials,
   getAvailableThicknesses,
   getAvailableFinishes,
+  getAvailableFrontMaterials,
+  getAvailableFrontThicknesses,
+  getAvailableFrontFinishes,
+  getAvailableHandles,
+  getAvailableHandleBrands,
   textureLabels,
   typeLabels,
   typeDescriptions,
   PieceModel,
+  FinishOption,
 } from "../data/models";
 import {
   acabamentosData,
@@ -174,8 +180,19 @@ export function ModelosEAcabamentosCard({
   const [acabamentos, setAcabamentos] = useState<AcabamentoData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedThickness, setSelectedThickness] = useState<number | null>(null);
+  const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
   const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
   const [compositions, setCompositions] = useState<Record<string, any>>({});
+  const [zoomedFinish, setZoomedFinish] = useState<FinishOption | null>(null);
+
+  // Estados para configuração de portas e gavetas (Frontais)
+  const [selectedFrontMaterial, setSelectedFrontMaterial] = useState<string | null>(null);
+  const [selectedFrontThickness, setSelectedFrontThickness] = useState<number | null>(null);
+  const [selectedFrontFinishId, setSelectedFrontFinishId] = useState<string | null>(null);
+  const [selectedHandleId, setSelectedHandleId] = useState<string | null>(null);
+  const [selectedHandleColorId, setSelectedHandleColorId] = useState<string | null>(null);
+  const [selectedHandleType, setSelectedHandleType] = useState<"perfil" | "avulso" | "nenhum">("nenhum");
+  const [selectedHandleBrand, setSelectedHandleBrand] = useState<string | null>(null);
 
   useEffect(() => {
     function loadModelData() {
@@ -207,13 +224,40 @@ export function ModelosEAcabamentosCard({
         if (pieceModel) {
           setModel(pieceModel);
 
-          // Set default selected thickness
+          // Set default selected thicknesses and materials
           const standardThickness = pieceModel.thicknesses.find(t => t.standard)?.thickness || pieceModel.thicknesses[0]?.thickness;
           setSelectedThickness(standardThickness);
+
+          const standardMaterial = pieceModel.materials[0]?.id || "mdf";
+          setSelectedMaterial(standardMaterial);
 
           // Set default selected pattern if Muxarabi
           if (pieceModel.patterns && pieceModel.patterns.length > 0) {
             setSelectedPattern(pieceModel.patterns[0]);
+          }
+
+          // Inicializar configuração de portas e gavetas (se disponíveis)
+          if (pieceModel.frontOptions) {
+            const frontMaterial = pieceModel.frontOptions.materials[0]?.id || "mdf";
+            const frontThickness = pieceModel.frontOptions.thicknesses.find(t => t.standard)?.thickness || pieceModel.frontOptions.thicknesses[0]?.thickness;
+            const frontHandles = pieceModel.frontOptions.handleOptions[0];
+            
+            setSelectedFrontMaterial(frontMaterial);
+            setSelectedFrontThickness(frontThickness);
+            setSelectedFrontFinishId(pieceModel.frontOptions.finishes[0]?.id || null);
+            setSelectedHandleId(frontHandles?.id || null);
+            setSelectedHandleColorId(frontHandles?.colors[0]?.id || null);
+            
+            // Inicializar tipo e marca
+            if (frontHandles?.id === "sem-perfil") {
+              setSelectedHandleType("nenhum");
+            } else if (frontHandles?.id === "perfil-gola-24mm") {
+              setSelectedHandleType("perfil");
+            }
+            
+            if (pieceModel.frontOptions.handleBrands && pieceModel.frontOptions.handleBrands.length > 0) {
+              setSelectedHandleBrand(pieceModel.frontOptions.handleBrands[0]);
+            }
           }
 
           // Inicializar composições com seus valores padrão
@@ -226,7 +270,7 @@ export function ModelosEAcabamentosCard({
           }
 
           // Categorização de acabamentos com filtro inicial
-          const currentFinishes = getAvailableFinishes(pieceId, standardThickness);
+          const currentFinishes = getAvailableFinishes(pieceId, standardThickness, standardMaterial);
 
           if (pieceModel.finishes && pieceModel.finishes.length > 0) {
             const mappedFinishes: AcabamentoData[] = currentFinishes.map(f => ({
@@ -326,11 +370,12 @@ export function ModelosEAcabamentosCard({
   }, [pieceIdProp, pieceCategory, pieceSubcategory]);
 
 
-  // Efeito adicional para atualizar acabamentos quando a espessura muda
+  // Efeito adicional para atualizar acabamentos quando a espessura ou material mudam
   useEffect(() => {
     if (model && selectedThickness) {
+      const currentFinishes = getAvailableFinishes(model.pieceId, selectedThickness, selectedMaterial || undefined);
+
       if (model.finishes && model.finishes.length > 0) {
-        const currentFinishes = getAvailableFinishes(model.pieceId, selectedThickness);
         const mappedFinishes: AcabamentoData[] = currentFinishes.map(f => ({
           id: f.id,
           nome: f.name,
@@ -345,9 +390,15 @@ export function ModelosEAcabamentosCard({
           textureType: f.texture
         }));
         setAcabamentos(mappedFinishes);
+      } else {
+        // Se o modelo não tem acabamentos específicos definidos, buscamos da base geral de acabamentos
+        // filtrando por material e espessura
+        const materialType = (selectedMaterial?.toUpperCase() === "MDP" ? "MDP" : "MDF") as "MDF" | "MDP";
+        const compatibleAcabamentos = getAcabamentosByMaterialEEspessura(materialType, selectedThickness);
+        setAcabamentos(compatibleAcabamentos);
       }
     }
-  }, [selectedThickness, model]);
+  }, [selectedThickness, selectedMaterial, model]);
 
   // Componente para acabamento real da base de dados
   const AcabamentoCard = ({ acabamento, espessuraEscolhida }: { acabamento: AcabamentoData, espessuraEscolhida: number | null }) => {
@@ -432,7 +483,8 @@ export function ModelosEAcabamentosCard({
   }
 
   return (
-    <Card className="rounded-xl border-slate-200">
+    <>
+      <Card className="rounded-xl border-slate-200">
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-3">
           <Package className="w-5 h-5 text-amber-600" />
@@ -454,7 +506,6 @@ export function ModelosEAcabamentosCard({
                 {typeDescriptions[model.type]}
               </span>
             </div>
-
           </div>
         )}
 
@@ -565,12 +616,39 @@ export function ModelosEAcabamentosCard({
                 </div>
               )}
 
-              {/* Seletor de Espessura e Dimensões (Prominente pós-características) */}
-              {availableThicknesses.length > 0 && (!model.patterns || model.patterns.length === 0) && (
+              {/* Seletor de Material Base do Corpo */}
+              {availableMaterials.length > 0 && (
+                <div className="space-y-4 pb-2">
+                  <h4 className="font-medium text-sm flex items-center gap-2">
+                    <Shapes className="w-4 h-4 text-emerald-600" />
+                    Corpo do Módulo: Material
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {availableMaterials.map((material) => (
+                      <button
+                        key={material.id}
+                        onClick={() => setSelectedMaterial(material.id)}
+                        className={`
+                          px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 border-2
+                          ${selectedMaterial === material.id
+                            ? "bg-emerald-600 border-emerald-700 text-white shadow-md scale-105"
+                            : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50"
+                          }
+                        `}
+                      >
+                        {material.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Seletor de Espessura do Corpo */}
+              {availableThicknesses.length > 0 && (
                 <div className="space-y-4 pb-2">
                   <h4 className="font-medium text-sm flex items-center gap-2">
                     <Settings className="w-4 h-4" />
-                    Espessura Disponível (Clique para selecionar)
+                    Corpo do Módulo: Espessura
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {availableThicknesses.map((thickness) => (
@@ -590,33 +668,12 @@ export function ModelosEAcabamentosCard({
                       </button>
                     ))}
                   </div>
-
-                  {/* Dimensões Técnicas por Espessura (ex: Triângulo Retângulo) */}
-                  {model.thicknessDimensions && selectedThickness && model.thicknessDimensions[selectedThickness] && (
-                    <div className="mt-2 p-4 bg-orange-50/50 border border-orange-200/50 rounded-xl space-y-3">
-                      <h4 className="font-medium text-[11px] uppercase tracking-wider flex items-center gap-2 text-orange-800">
-                        <Info className="w-3.5 h-3.5" />
-                        Dimensões Nominais ({selectedThickness}mm)
-                      </h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-white/80 p-2 rounded-lg border border-orange-100 flex flex-col items-center">
-                          <span className="text-[9px] text-slate-500 uppercase font-bold">Largura</span>
-                          <span className="text-[11px] font-bold text-orange-700">
-                            {model.thicknessDimensions[selectedThickness].minWidth} ~ {model.thicknessDimensions[selectedThickness].maxWidth}
-                          </span>
-                        </div>
-                        <div className="bg-white/80 p-2 rounded-lg border border-orange-100 flex flex-col items-center">
-                          <span className="text-[9px] text-slate-500 uppercase font-bold">Altura</span>
-                          <span className="text-[11px] font-bold text-orange-700">
-                            {model.thicknessDimensions[selectedThickness].minHeight} ~ {model.thicknessDimensions[selectedThickness].maxHeight}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  <Separator className="my-4" />
                 </div>
               )}
+
+              <Separator className="my-4" />
+
+              <Separator className="my-4" />
 
               {/* Composições Especiais (Ex: Geometria Livre) */}
               {model.compositionOptions && model.compositionOptions.length > 0 && (
@@ -651,7 +708,7 @@ export function ModelosEAcabamentosCard({
                               value={compositions[opt.id] ?? opt.defaultValue ?? 0}
                               onChange={(e) => setCompositions(prev => ({ ...prev, [opt.id]: parseInt(e.target.value) }))}
                             >
-                              {Array.from({ length: (opt.max ?? 20) - (opt.min ?? 0) + 1 }, (_, i) => (opt.min ?? 0) + i).map(num => (
+                              {Array.from({ length: (opt.max ?? 20) - (opt.min ?? 0) + 1 }, (_, index) => (opt.min ?? 0) + index).map(num => (
                                 <option key={num} value={num}>{num}</option>
                               ))}
                             </select>
@@ -684,43 +741,71 @@ export function ModelosEAcabamentosCard({
                   ))}
                 </div>
               </div>
-
             </TabsContent>
 
             <TabsContent value="finishes" className="space-y-6 mt-4">
-              {/* Seletor de Espessura para Acabamentos */}
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                <div className="flex items-center justify-between">
+              {/* Seletor de Material e Espessura para Acabamentos */}
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
+                {/* Material Selection in Finishes Tab */}
+                <div className="space-y-3">
                   <h5 className="text-xs font-semibold text-slate-900 flex items-center gap-2">
-                    <Settings className="w-3 h-3" />
-                    Selecione a Espessura
+                    <Shapes className="w-3 h-3" />
+                    Tipo de Material
                   </h5>
-                  {selectedThickness && (
-                    <Badge variant="secondary" className="bg-amber-100 text-amber-700 text-[10px]">
-                      {selectedThickness}mm selecionado
-                    </Badge>
-                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {availableMaterials.map((material) => (
+                      <button
+                        key={material.id}
+                        onClick={() => setSelectedMaterial(material.id)}
+                        className={`
+                          px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 border-2
+                          ${selectedMaterial === material.id
+                            ? "bg-emerald-600 border-emerald-700 text-white shadow-md scale-105"
+                            : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50"
+                          }
+                        `}
+                      >
+                        {material.name}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {availableThicknesses.map((thickness) => (
-                    <button
-                      key={thickness.thickness}
-                      onClick={() => setSelectedThickness(thickness.thickness)}
-                      className={`
-                        px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 border-2
-                        ${selectedThickness === thickness.thickness
-                          ? "bg-amber-600 border-amber-700 text-white shadow-md scale-105"
-                          : "bg-white border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50"
-                        }
-                      `}
-                    >
-                      {thickness.thickness}mm
-                      {thickness.standard && <span className="ml-1 opacity-70">(Padrão)</span>}
-                    </button>
-                  ))}
+
+                <Separator className="opacity-50" />
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h5 className="text-xs font-semibold text-slate-900 flex items-center gap-2">
+                      <Settings className="w-3 h-3" />
+                      Selecione a Espessura
+                    </h5>
+                    {selectedThickness && (
+                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 text-[10px]">
+                        {selectedThickness}mm selecionado
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {availableThicknesses.map((thickness) => (
+                      <button
+                        key={thickness.thickness}
+                        onClick={() => setSelectedThickness(thickness.thickness)}
+                        className={`
+                          px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 border-2
+                          ${selectedThickness === thickness.thickness
+                            ? "bg-amber-600 border-amber-700 text-white shadow-md scale-105"
+                            : "bg-white border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50"
+                          }
+                        `}
+                      >
+                        {thickness.thickness}mm
+                        {thickness.standard && <span className="ml-1 opacity-70">(Padrão)</span>}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <p className="text-[10px] text-slate-500 italic">
-                  * A disponibilidade de cores varia conforme a espessura selecionada.
+                  * A disponibilidade de cores varia conforme o material e a espessura selecionados.
                 </p>
               </div>
 
@@ -739,7 +824,37 @@ export function ModelosEAcabamentosCard({
                 {acabamentos.length > 0 ? (
                   <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3">
                     {acabamentos.map((acabamento) => (
-                      <AcabamentoCard key={acabamento.id} acabamento={acabamento} espessuraEscolhida={selectedThickness} />
+                      <div key={acabamento.id} className="group relative flex flex-col items-center gap-2">
+                        <div className="relative w-full aspect-square rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+                          <div 
+                            className="absolute inset-0" 
+                            style={{ backgroundColor: acabamento.colorHex || "#eee" }}
+                          >
+                            {getTextureOverlay(acabamento.nome)}
+                          </div>
+                          
+                          {/* Zoom Icon Overlay */}
+                          <div 
+                            className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer"
+                            onClick={() => setZoomedFinish({
+                              id: acabamento.id,
+                              name: acabamento.nome,
+                              color: acabamento.nome,
+                              colorHex: acabamento.colorHex || "#eee",
+                              texture: "liso",
+                              materials: acabamento.materiais.map(m => m.tipo),
+                              available: true
+                            })}
+                          >
+                            <div className="bg-white/90 p-1.5 rounded-full shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                              <Maximize2 className="w-3 h-3 text-amber-600" />
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-[9px] font-medium text-center text-slate-600 truncate w-full">
+                          {acabamento.nome}
+                        </span>
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -749,52 +864,261 @@ export function ModelosEAcabamentosCard({
                     <p className="text-xs text-slate-600 mt-1">
                       Não foram encontrados acabamentos compatíveis com os materiais selecionados
                     </p>
+                    <div className="flex items-center gap-1.5 pt-1">
+                      <div className="flex -space-x-2">
+                        {['#fbbf24', '#f87171', '#4ade80', '#60a5fa', '#a78bfa'].map((c, i) => (
+                          <div key={i} className="w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: c }} />
+                        ))}
+                      </div>
+                      <span className="text-[10px] font-bold text-blue-600">+ centenas de outras opções</span>
+                    </div>
                   </div>
                 )}
 
-                {/* Informação sobre outros projetos e cores */}
-                {acabamentos.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="p-4 bg-gradient-to-br from-blue-50/80 to-indigo-50/80 rounded-xl border border-blue-200/60">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                          <Palette className="w-5 h-5 text-white" />
+                <Separator className="my-6 opacity-40" />
+
+                {/* CONFIGURAÇÃO DE PORTAS E GAVETAS (RELOCADO PARA TAB DE CORES) */}
+                {model.frontOptions && (
+                  <div className="space-y-6 pt-4 pb-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold text-sm flex items-center gap-2 text-slate-800">
+                        <DoorOpen className="w-4 h-4 text-amber-600" />
+                        Portas e Gavetas (Frentes)
+                      </h4>
+                      <Badge variant="secondary" className="text-[10px] uppercase font-bold bg-amber-100 text-amber-700 border-amber-200 shadow-sm">
+                        Configuração Frontal
+                      </Badge>
+                    </div>
+
+                    {/* 1. Material e Espessura da Frente */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Material da Frente</span>
+                        <div className="flex gap-2">
+                          {getAvailableFrontMaterials(model.pieceId).map((material) => (
+                            <button
+                              key={material.id}
+                              onClick={() => setSelectedFrontMaterial(material.id)}
+                              className={`flex-1 py-1.5 rounded-md text-[11px] font-bold border transition-all ${
+                                selectedFrontMaterial === material.id
+                                  ? "bg-white border-amber-600 text-amber-700 shadow-sm ring-1 ring-amber-600/20"
+                                  : "bg-slate-100/50 border-slate-200 text-slate-600 hover:bg-white"
+                              }`}
+                            >
+                              {material.name}
+                            </button>
+                          ))}
                         </div>
-                        <div className="flex-1">
-                          <h5 className="font-medium text-sm text-blue-900 mb-2">Outras Cores & Projetos Personalizados</h5>
-                          <p className="text-xs text-blue-700 leading-relaxed mb-3">
-                            Além dos acabamentos padrão listados, a <strong>Bartz</strong> desenvolve projetos
-                            personalizados com uma ampla variedade de cores e texturas especiais para atender
-                            suas necessidades específicas.
-                          </p>
-                          <div className="flex items-center gap-2 text-xs text-blue-600">
-                            <div className="flex gap-1">
-                              <div className="w-4 h-4 rounded-full bg-red-400 border border-red-300"></div>
-                              <div className="w-4 h-4 rounded-full bg-green-400 border border-green-300"></div>
-                              <div className="w-4 h-4 rounded-full bg-purple-400 border border-purple-300"></div>
-                              <div className="w-4 h-4 rounded-full bg-yellow-400 border border-yellow-300"></div>
-                              <div className="w-4 h-4 rounded-full bg-pink-400 border border-pink-300"></div>
-                            </div>
-                            <span className="font-medium">+ centenas de outras opções</span>
-                          </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Espessura da Frente</span>
+                        <div className="flex gap-2">
+                          {getAvailableFrontThicknesses(model.pieceId).map((thickness) => (
+                            <button
+                              key={thickness.thickness}
+                              onClick={() => setSelectedFrontThickness(thickness.thickness)}
+                              className={`flex-1 py-1.5 rounded-md text-[11px] font-bold border transition-all ${
+                                selectedFrontThickness === thickness.thickness
+                                  ? "bg-white border-amber-600 text-amber-700 shadow-sm ring-1 ring-amber-600/20"
+                                  : "bg-slate-100/50 border-slate-200 text-slate-600 hover:bg-white"
+                              }`}
+                            >
+                              {thickness.thickness}mm
+                            </button>
+                          ))}
                         </div>
                       </div>
                     </div>
 
-                    {/* Informação técnica sobre compatibilidade */}
-                    <div className="p-3 bg-slate-50/50 rounded-lg border border-slate-200">
-                      <h5 className="font-medium text-xs text-slate-700 mb-2">Compatibilidade Técnica:</h5>
-                      <p className="text-xs text-slate-600 leading-relaxed">
-                        Acabamentos listados são compatíveis with os materiais e espessuras disponíveis
-                        para esta categoria de peça. Para projetos com cores personalizadas, consulte nossa
-                        equipe técnica para verificar viabilidade e especificações.
-                      </p>
+                    {/* 2. Cores da Porta (Filtrado por Material) com ZOOM */}
+                    <div className="space-y-3">
+                      <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Cor da Porta / Gaveta</span>
+                      <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                        {getAvailableFrontFinishes(model.pieceId, selectedFrontThickness || undefined, selectedFrontMaterial || undefined).map((finish) => (
+                          <div key={finish.id} className="group relative flex flex-col items-center gap-1.5">
+                            <button
+                              onClick={() => setSelectedFrontFinishId(finish.id)}
+                              className={`w-full aspect-square rounded-lg border-2 transition-all relative overflow-hidden ${
+                                selectedFrontFinishId === finish.id 
+                                  ? "border-amber-600 shadow-md ring-2 ring-amber-600/20" 
+                                  : "border-slate-200 hover:border-slate-300"
+                              }`}
+                              style={{ backgroundColor: finish.colorHex || "#eee" }}
+                            >
+                              {getTextureOverlay(finish.name)}
+                              
+                              {/* Zoom Button Overlay */}
+                              <div 
+                                className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setZoomedFinish(finish);
+                                }}
+                              >
+                                <div className="bg-white/90 p-1.5 rounded-full shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                  <Maximize2 className="w-3.5 h-3.5 text-amber-600" />
+                                </div>
+                              </div>
+                            </button>
+                            <span className={`text-[9px] leading-tight text-center truncate w-full px-0.5 ${
+                              selectedFrontFinishId === finish.id ? "font-bold text-amber-700" : "text-slate-500"
+                            }`}>
+                              {finish.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 3. Escolha de Puxadores */}
+                    <div className="space-y-4 pt-2">
+                      <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Escolha de Puxadores</span>
+                      
+                      {/* Seletor de Tipo de Puxador */}
+                      <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button 
+                          onClick={() => {
+                            setSelectedHandleType("nenhum");
+                            setSelectedHandleId("sem-perfil");
+                          }}
+                          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
+                            selectedHandleType === "nenhum" 
+                              ? "bg-white text-slate-900 shadow-sm border-slate-200" 
+                              : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
+                          }`}
+                        >
+                          Sem Puxador
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setSelectedHandleType("perfil");
+                            const gola = model.frontOptions?.handleOptions.find(h => h.id === "perfil-gola-24mm");
+                            if (gola) {
+                              setSelectedHandleId(gola.id);
+                              setSelectedHandleColorId(gola.colors[0]?.id || null);
+                            }
+                          }}
+                          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
+                            selectedHandleType === "perfil" 
+                              ? "bg-white text-amber-700 shadow-sm border-amber-200" 
+                              : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
+                          }`}
+                        >
+                          <Settings className="w-3.5 h-3.5" />
+                          Perfil Gola
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setSelectedHandleType("avulso");
+                            setSelectedHandleId("avulso");
+                            if (!selectedHandleBrand) {
+                              setSelectedHandleBrand(getAvailableHandleBrands(model.pieceId)[0] || null);
+                            }
+                          }}
+                          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
+                            selectedHandleType === "avulso" 
+                              ? "bg-white text-blue-700 shadow-sm border-blue-200" 
+                              : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
+                          }`}
+                        >
+                          <MousePointer2 className="w-3.5 h-3.5" />
+                          Puxador Avulso
+                        </button>
+                      </div>
+
+                      {/* Conteúdo dependente do Tipo */}
+                      
+                      {/* Seção Perfil Gola */}
+                      {selectedHandleType === "perfil" && (
+                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 border-l-2 border-amber-500 pl-4 py-2">
+                          <div className="space-y-2">
+                            <span className="text-[10px] uppercase font-bold text-amber-800">Modelo do Perfil</span>
+                            <div className="flex flex-wrap gap-2">
+                              {getAvailableHandles(model.pieceId).filter(h => h.id !== "sem-perfil").map((handle) => (
+                                <button
+                                  key={handle.id}
+                                  onClick={() => {
+                                    setSelectedHandleId(handle.id);
+                                    if (handle.colors.length > 0 && !selectedHandleColorId) {
+                                      setSelectedHandleColorId(handle.colors[0].id);
+                                    }
+                                  }}
+                                  className={`px-4 py-2 rounded-lg text-xs font-bold border transition-all ${
+                                    selectedHandleId === handle.id
+                                      ? "bg-amber-600 border-amber-700 text-white shadow-md ring-2 ring-amber-600/30"
+                                      : "bg-white border-slate-200 text-slate-600 hover:border-amber-400"
+                                  }`}
+                                >
+                                  {handle.name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Cores do Puxador Gola */}
+                          {selectedHandleId && selectedHandleId !== "sem-perfil" && (
+                            <div className="space-y-3 p-3 bg-amber-50/50 rounded-lg border border-amber-100">
+                              <span className="text-[10px] uppercase font-bold text-amber-800 flex items-center gap-2">
+                                Cor do Acabamento Gola
+                              </span>
+                              <div className="flex gap-4">
+                                {model.frontOptions?.handleOptions
+                                  .find(h => h.id === selectedHandleId)?.colors.map((color) => (
+                                    <button
+                                      key={color.id}
+                                      onClick={() => setSelectedHandleColorId(color.id)}
+                                      className="flex flex-col items-center gap-1.5 group"
+                                    >
+                                      <div 
+                                        className={`w-8 h-8 rounded-full border-2 shadow-sm transition-all ${
+                                          selectedHandleColorId === color.id 
+                                            ? "border-amber-600 scale-125 ring-2 ring-amber-600/30" 
+                                            : "border-white group-hover:border-amber-300"
+                                        }`}
+                                        style={{ backgroundColor: color.hex }}
+                                      />
+                                      <span className={`text-[10px] ${
+                                        selectedHandleColorId === color.id ? "font-bold text-amber-700" : "text-slate-500"
+                                      }`}>
+                                        {color.name}
+                                      </span>
+                                    </button>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Seção Puxador Avulso (Marcas) */}
+                      {selectedHandleType === "avulso" && (
+                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300 border-l-2 border-blue-500 pl-4 py-2">
+                          <span className="text-[10px] uppercase font-bold text-blue-800 flex items-center gap-2">
+                            Marcas Disponíveis (Puxadores Avulsos)
+                          </span>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {getAvailableHandleBrands(model.pieceId).map((brand) => (
+                              <button
+                                key={brand}
+                                onClick={() => setSelectedHandleBrand(brand)}
+                                className={`px-3 py-2 rounded-lg text-[11px] font-bold border transition-all text-center ${
+                                  selectedHandleBrand === brand
+                                    ? "bg-blue-600 border-blue-700 text-white shadow-md ring-2 ring-blue-600/20"
+                                    : "bg-white border-slate-200 text-slate-600 hover:border-blue-400 hover:bg-blue-50"
+                                }`}
+                              >
+                                {brand}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
             </TabsContent>
-
           </Tabs>
         ) : (
           <div className="text-center py-8">
@@ -814,5 +1138,40 @@ export function ModelosEAcabamentosCard({
         </div>
       </CardContent>
     </Card>
-  );
+
+    {/* COLOR ZOOM LIGHTBOX */}
+    {zoomedFinish && (
+      <div 
+        className="fixed inset-0 z-[200] flex items-center justify-center bg-zinc-950/90 backdrop-blur-md animate-in fade-in duration-300"
+        onClick={() => setZoomedFinish(null)}
+      >
+        <button 
+          className="absolute top-6 right-6 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-[210]"
+          onClick={(e) => {
+            e.stopPropagation();
+            setZoomedFinish(null);
+          }}
+        >
+          <CloseIcon className="w-6 h-6" />
+        </button>
+        
+        <div 
+          className="relative w-full max-w-lg px-4 flex flex-col items-center animate-in zoom-in-95 duration-300"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div 
+            className="w-64 h-64 md:w-80 md:h-80 rounded-3xl shadow-2xl border-4 border-white/20 overflow-hidden relative"
+            style={{ backgroundColor: zoomedFinish.colorHex || "#eee" }}
+          >
+            {getTextureOverlay(zoomedFinish.name)}
+          </div>
+          
+          <div className="mt-8 text-center space-y-2">
+            <h3 className="text-white font-black text-3xl uppercase tracking-tighter">{zoomedFinish.name}</h3>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
+);
 }

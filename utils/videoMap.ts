@@ -18,6 +18,7 @@ export const pieceToGifFilename: Record<string, string | string[]> = {
     "triangulo-retangulo": "triangulo-retangulo",
     "geometria-circular": "geometria-circular",
     "geometria-livre": ["como-usar-geometria-livre", "geometria-livre", "curvas-geometria-livre"],
+    "basic-inferiores": "linha-basic-inferiores",
 };
 
 /**

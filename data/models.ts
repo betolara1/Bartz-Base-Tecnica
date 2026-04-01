@@ -25,6 +25,7 @@ export interface FinishOption {
   available: boolean;
   standard?: boolean;
   thicknesses?: number[]; // Espessuras onde este acabamento está disponível
+  materials?: string[]; // Materiais onde este acabamento está disponível (ex: "mdf", "mdp")
 }
 
 export interface AggregateOption {
@@ -60,6 +61,29 @@ export interface PieceModel {
     maxHeight: number | string;
   }>; // Dimensões técnicas por espessura
   compositionOptions?: CompositionOption[]; // Custom form options for compositions like internal cuts
+  frontOptions?: FrontOptions; // Opções específicas de portas e gavetas (ex: Linha Comum)
+}
+
+export interface FrontOptions {
+  materials: MaterialOption[];
+  thicknesses: ThicknessOption[];
+  finishes: FinishOption[];
+  handleOptions: HandleOption[];
+  handleBrands?: string[]; // Marcas de puxadores avulsos
+}
+
+export interface HandleOption {
+  id: string;
+  name: string;
+  available: boolean;
+  colors: HandleColor[];
+}
+
+export interface HandleColor {
+  id: string;
+  name: string;
+  hex: string;
+  available: boolean;
 }
 
 export interface CompositionOption {
@@ -74,7 +98,7 @@ export interface CompositionOption {
 
 // Acabamentos compartilhados para Curvos e Muxarabi (45 cores para 18mm, 19 para 25mm)
 const SHARED_CURVO_MUXARABI_FINISHES: FinishOption[] = [
-  { id: "branco-tx", name: "Branco", color: "Branco", colorHex: "#FFFFFF", texture: "liso", available: true, standard: true, thicknesses: [15, 18, 25, 37] },
+  { id: "branco-tx", name: "Branco", color: "Branco", colorHex: "#FFFFFF", texture: "liso", available: true, standard: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
   { id: "ameixa-negra", name: "Ameixa Negra", color: "Madeira", colorHex: "#5D4037", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
   { id: "amazonia", name: "Amazônia", color: "Verde", colorHex: "#2E4D2E", texture: "texturizado", available: true, thicknesses: [18, 37] },
   { id: "asti", name: "Asti", color: "Madeira", colorHex: "#D2B48C", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
@@ -83,11 +107,11 @@ const SHARED_CURVO_MUXARABI_FINISHES: FinishOption[] = [
   { id: "beige", name: "Beige", color: "Bege", colorHex: "#F5F5DC", texture: "liso", available: true, thicknesses: [15, 18, 25, 37] },
   { id: "bianco-ravena", name: "Bianco Ravena", color: "Madeira", colorHex: "#F5F5F5", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37] },
   { id: "bronze", name: "Bronze", color: "Metálico", colorHex: "#8B5A2B", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "cabiuna-nobre", name: "Cabiuna Nobre", color: "Madeira", colorHex: "#3D2B1F", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37] },
+  { id: "cabiuna-nobre", name: "Cabiuna Nobre", color: "Madeira", colorHex: "#3D2B1F", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
   { id: "camelo", name: "Camelo", color: "Couro", colorHex: "#996644", texture: "texturizado", available: true, thicknesses: [18, 37] },
   { id: "cancun", name: "Cancun", color: "Madeira", colorHex: "#8B7D6B", texture: "texturizado", available: true, thicknesses: [18, 37] },
   { id: "carvalho-latino", name: "Carvalho Latino", color: "Madeira", colorHex: "#D2B48C", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "carvalho-mel", name: "Carvalho Mel", color: "Madeira", colorHex: "#C19A6B", texture: "texturizado", available: true, thicknesses: [15] },
+  { id: "carvalho-mel", name: "Carvalho Mel", color: "Madeira", colorHex: "#C19A6B", texture: "texturizado", available: true, thicknesses: [15, 18], materials: ["mdp"] },
   { id: "carvalho-natural", name: "Carvalho Natural", color: "Madeira", colorHex: "#E3C9A6", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37] },
   { id: "cinza-puro", name: "Cinza Puro", color: "Cinza", colorHex: "#808080", texture: "liso", available: true, thicknesses: [18, 37] },
   { id: "corazzi", name: "Corazzi", color: "Madeira", colorHex: "#A0866A", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
@@ -109,7 +133,7 @@ const SHARED_CURVO_MUXARABI_FINISHES: FinishOption[] = [
   { id: "mint", name: "Mint", color: "Verde", colorHex: "#98FB98", texture: "liso", available: true, thicknesses: [18, 37] },
   { id: "niquel", name: "Níquel", color: "Cinza", colorHex: "#BDBDBD", texture: "texturizado", available: true, thicknesses: [18, 37] },
   { id: "nogueira-caiena", name: "Nogueira Caiena", color: "Madeira", colorHex: "#6B4226", texture: "texturizado", available: true, thicknesses: [18, 37] },
-  { id: "panna", name: "Panna", color: "Off-white", colorHex: "#E6E6FA", texture: "liso", available: true, thicknesses: [15, 18, 25, 37] },
+  { id: "panna", name: "Panna", color: "Off-white", colorHex: "#E6E6FA", texture: "liso", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
   { id: "pau-ferro", name: "Pau Ferro", color: "Madeira", colorHex: "#4B3621", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
   { id: "petar", name: "Petar", color: "Cinza", colorHex: "#B8860B", texture: "texturizado", available: true, thicknesses: [18, 25, 37] },
   { id: "petra", name: "Petra", color: "Cinza", colorHex: "#696969", texture: "texturizado", available: true, thicknesses: [18, 37] },
@@ -117,8 +141,8 @@ const SHARED_CURVO_MUXARABI_FINISHES: FinishOption[] = [
   { id: "raphia", name: "Raphia", color: "Trama", colorHex: "#6E7B68", texture: "texturizado", available: true, thicknesses: [18, 37] },
   { id: "reali", name: "Reali", color: "Madeira", colorHex: "#8B7355", texture: "texturizado", available: true, thicknesses: [18, 37] },
   { id: "santiago", name: "Santiago", color: "Madeira", colorHex: "#D2B48C", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37] },
-  { id: "serrano", name: "Serrano", color: "Madeira", colorHex: "#B8860B", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37] },
-  { id: "urbi", name: "Urbi", color: "Cinza", colorHex: "#D1D5DB", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37] },
+  { id: "serrano", name: "Serrano", color: "Madeira", colorHex: "#B8860B", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
+  { id: "urbi", name: "Urbi", color: "Cinza", colorHex: "#D1D5DB", texture: "texturizado", available: true, thicknesses: [15, 18, 25, 37], materials: ["mdf"] },
   { id: "vulcano", name: "Vulcano", color: "Madeira", colorHex: "#3E2723", texture: "texturizado", available: true, thicknesses: [18, 37] }
 ];
 
@@ -420,7 +444,8 @@ export const modelsData: PieceModel[] = [
     ],
     notes: [
       "Formas personalizadas sob consulta.",
-      "Atenção: Verificar valores com o comercial antes de prosseguir."
+      "Atenção: Verificar valores com o comercial antes de prosseguir.",
+      "Nota: A peça será fabricada em total conformidade com a geometria definida na edição. Recomenda-se uma revisão detalhada antes da finalização."
     ],
     compositionOptions: [
       {
@@ -463,6 +488,145 @@ export const modelsData: PieceModel[] = [
         defaultValue: 0
       }
     ]
+  },
+  {
+    pieceId: "basic-inferiores",
+    type: "modular",
+    materials: [
+      { id: "mdf", codigo: "MDF001", name: "MDF", available: true, description: "Painel de fibras - Melhor acabamento" },
+      { id: "mdp", codigo: "MDP001", name: "MDP", available: true, description: "Painel de partículas - Resistente" }
+    ],
+    thicknesses: [
+      { id: "15", codigo: "ESP15", thickness: 15, available: true, standard: true }
+    ],
+    thicknessDimensions: {
+      15: { minWidth: 300, maxWidth: 900, minHeight: 670, maxHeight: 760 }
+    },
+    finishes: SHARED_CURVO_MUXARABI_FINISHES.filter(f => 
+      f.thicknesses?.includes(15) && 
+      (
+        (f.id === "carvalho-mel" && f.materials?.includes("mdp")) ||
+        (["branco-tx", "panna", "urbi"].includes(f.id) && (f.materials?.includes("mdf") || !f.materials))
+      )
+    ),
+    aggregates: [],
+    characteristics: [
+      "Linha Basic - Conjunto Inferiores",
+      "Configurações: 1 Porta, 2 Portas, 4 Gavetas, 2 Gav + 1 Gavetão, 2 Gavetões",
+      "Profundidade fixa: 545mm",
+      "Altura selecinável: 670mm ou 760mm"
+    ],
+    notes: [
+      "Frentes em MDF 18mm, Corpo em MDF 15mm",
+      "Puxadores e sistemas de corrediças inclusos conforme configuração",
+      "Ajuste de largura milimétrico entre 300mm e 900mm"
+    ],
+    frontOptions: {
+      materials: [
+        { id: "mdf", codigo: "MDF001", name: "MDF", available: true, description: "Painel de fibras - Melhor acabamento" },
+        { id: "mdp", codigo: "MDP001", name: "MDP", available: true, description: "Painel de partículas - Resistente" }
+      ],
+      thicknesses: [
+        { id: "15", codigo: "ESP15", thickness: 15, available: true, standard: true },
+        { id: "18", codigo: "ESP18", thickness: 18, available: true, standard: false }
+      ],
+      finishes: SHARED_CURVO_MUXARABI_FINISHES.filter(f => 
+        (f.thicknesses?.includes(15) || f.thicknesses?.includes(18)) && 
+        (
+          (f.id === "carvalho-mel" && f.materials?.includes("mdp")) ||
+          (["branco-tx", "cabiuna-nobre", "panna", "serrano", "urbi"].includes(f.id) && (f.materials?.includes("mdf") || !f.materials))
+        )
+      ),
+      handleOptions: [
+        { 
+          id: "sem-perfil", 
+          name: "Sem perfil", 
+          available: true,
+          colors: []
+        },
+        { 
+          id: "perfil-gola-24mm", 
+          name: "Perfil gola 24mm", 
+          available: true,
+          colors: [
+            { id: "cinza", name: "Cinza", hex: "#A1A1A1", available: true },
+            { id: "bronze", name: "Bronze", hex: "#8B5A2B", available: true },
+            { id: "preto", name: "Preto", hex: "#1A1A1A", available: true },
+            { id: "inox", name: "Inox", hex: "#B5AD8B", available: true }
+          ]
+        }
+      ],
+      handleBrands: ["Archi", "Contatto", "Metalsinos", "Puxart", "Tabone", "Torralba", "Zen"]
+    }
+  },
+  {
+    pieceId: "basic-superiores",
+    type: "modular",
+    materials: [
+      { id: "mdf", codigo: "MDF001", name: "MDF", available: true, description: "Painel de fibras - Melhor acabamento" },
+      { id: "mdp", codigo: "MDP001", name: "MDP", available: true, description: "Painel de partículas - Resistente" }
+    ],
+    thicknesses: [
+      { id: "15", codigo: "ESP15", thickness: 15, available: true, standard: true }
+    ],
+    thicknessDimensions: {
+      15: { minWidth: 200, maxWidth: 1200, minHeight: 330, maxHeight: 880 }
+    },
+    finishes: SHARED_CURVO_MUXARABI_FINISHES.filter(f => 
+      f.thicknesses?.includes(15) && 
+      (
+        (f.id === "carvalho-mel" && f.materials?.includes("mdp")) ||
+        (["branco-tx", "panna", "urbi"].includes(f.id) && (f.materials?.includes("mdf") || !f.materials))
+      )
+    ),
+    aggregates: [],
+    characteristics: [
+      "Linha Basic - Conjunto Superiores",
+      "Configurações: 1 Porta, 2 Portas, Basculantes",
+      "Profundidade fixa: 350mm",
+      "Alturas Nominais: 330, 440, 660, 880mm"
+    ],
+    notes: [
+      "Frentes em MDF 18mm",
+      "Ferragens de alta performance inclusas"
+    ],
+    frontOptions: {
+      materials: [
+        { id: "mdf", codigo: "MDF001", name: "MDF", available: true, description: "Painel de fibras - Melhor acabamento" },
+        { id: "mdp", codigo: "MDP001", name: "MDP", available: true, description: "Painel de partículas - Resistente" }
+      ],
+      thicknesses: [
+        { id: "15", codigo: "ESP15", thickness: 15, available: true, standard: true },
+        { id: "18", codigo: "ESP18", thickness: 18, available: true, standard: false }
+      ],
+      finishes: SHARED_CURVO_MUXARABI_FINISHES.filter(f => 
+        (f.thicknesses?.includes(15) || f.thicknesses?.includes(18)) && 
+        (
+          (f.id === "carvalho-mel" && f.materials?.includes("mdp")) ||
+          (["branco-tx", "cabiuna-nobre", "panna", "serrano", "urbi"].includes(f.id) && (f.materials?.includes("mdf") || !f.materials))
+        )
+      ),
+      handleOptions: [
+        { 
+          id: "sem-perfil", 
+          name: "Sem perfil", 
+          available: true,
+          colors: []
+        },
+        { 
+          id: "perfil-gola-24mm", 
+          name: "Perfil gola 24mm", 
+          available: true,
+          colors: [
+            { id: "cinza", name: "Cinza", hex: "#A1A1A1", available: true },
+            { id: "bronze", name: "Bronze", hex: "#8B5A2B", available: true },
+            { id: "preto", name: "Preto", hex: "#1A1A1A", available: true },
+            { id: "inox", name: "Inox", hex: "#B5AD8B", available: true }
+          ]
+        }
+      ],
+      handleBrands: ["Archi", "Contatto", "Metalsinos", "Puxart", "Tabone", "Torralba", "Zen"]
+    }
   }
 ];
 
@@ -481,12 +645,51 @@ export function getAvailableThicknesses(pieceId: string): ThicknessOption[] {
   return model?.thicknesses.filter(t => t.available) || [];
 }
 
-export function getAvailableFinishes(pieceId: string, thickness?: number): FinishOption[] {
+export function getAvailableFrontMaterials(pieceId: string): MaterialOption[] {
+  const model = getModelForPiece(pieceId);
+  return model?.frontOptions?.materials.filter(m => m.available) || [];
+}
+
+export function getAvailableFrontThicknesses(pieceId: string): ThicknessOption[] {
+  const model = getModelForPiece(pieceId);
+  return model?.frontOptions?.thicknesses.filter(t => t.available) || [];
+}
+
+export function getAvailableFrontFinishes(pieceId: string, thickness?: number, materialId?: string): FinishOption[] {
+  const model = getModelForPiece(pieceId);
+  let finishes = model?.frontOptions?.finishes.filter(f => f.available) || [];
+
+  if (thickness) {
+    finishes = finishes.filter(f => !f.thicknesses || f.thicknesses.includes(thickness));
+  }
+
+  if (materialId) {
+    finishes = finishes.filter(f => !f.materials || f.materials.includes(materialId.toLowerCase()));
+  }
+
+  return finishes;
+}
+
+export function getAvailableHandles(pieceId: string): HandleOption[] {
+  const model = getModelForPiece(pieceId);
+  return model?.frontOptions?.handleOptions.filter(h => h.available) || [];
+}
+
+export function getAvailableHandleBrands(pieceId: string): string[] {
+  const model = getModelForPiece(pieceId);
+  return model?.frontOptions?.handleBrands || [];
+}
+
+export function getAvailableFinishes(pieceId: string, thickness?: number, materialId?: string): FinishOption[] {
   const model = getModelForPiece(pieceId);
   let finishes = model?.finishes.filter(f => f.available) || [];
 
   if (thickness) {
     finishes = finishes.filter(f => !f.thicknesses || f.thicknesses.includes(thickness));
+  }
+
+  if (materialId) {
+    finishes = finishes.filter(f => !f.materials || f.materials.includes(materialId.toLowerCase()));
   }
 
   return finishes;

@@ -129,6 +129,33 @@ const baseCatalogData: PieceData[] = [
     relatedIds: [],
     image: "/fotos/geometria-livre.png",
     tags: ["livre", "personalizado", "especial", "ateliê"]
+  },
+  // Linha Basic
+  {
+    id: "basic-inferiores",
+    categoria: "Linha Basic",
+    subcategoria: "Geral",
+    descricao: "Módulos Inferiores",
+    min: { largura: 300, altura: 670, profundidade: 545 },
+    max: { largura: 900, altura: 760, profundidade: 545 },
+    fixos: { largura: false, altura: false, profundidade: true },
+    popularidade: 5,
+    relatedIds: ["basic-superiores"],
+    links: { video: "/videos/linha-basic-inferiores.gif" },
+    image: "/fotos/basic-line-inferiores.png",
+    tags: ["basic", "inferior", "balcão", "cozinha"]
+  },
+  {
+    id: "basic-superiores",
+    categoria: "Linha Basic",
+    subcategoria: "Geral",
+    descricao: "Módulos Superiores",
+    min: { largura: 200, altura: 330, profundidade: 350 },
+    max: { largura: 1200, altura: 880, profundidade: 350 },
+    fixos: { largura: false, altura: false, profundidade: true },
+    popularidade: 5,
+    relatedIds: ["basic-inferiores"],
+    tags: ["basic", "superior", "aéreo", "cozinha"]
   }
 ];
 

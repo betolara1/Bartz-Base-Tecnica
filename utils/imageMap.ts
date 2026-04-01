@@ -7,6 +7,7 @@ import muxarabi from "../fotos/muxarabi.png";
 import trianguloRetangulo from "../fotos/triangulo-retangulo.png";
 import geometriaCircular from "../fotos/geometria-circular.png";
 import geometriaLivre from "../fotos/geometria-livre.png";
+import basicLineInferiores from "../fotos/basic-line-inferiores.png";
 
 export const pieceImages: Record<string, string> = {
     "mod-curvo-90": moduloCurvo90,
@@ -16,6 +17,7 @@ export const pieceImages: Record<string, string> = {
     "triangulo-retangulo": trianguloRetangulo,
     "geometria-circular": geometriaCircular,
     "geometria-livre": geometriaLivre,
+    "basic-inferiores": basicLineInferiores,
 };
 
 /** Returns the image URL for a piece ID, or undefined if no image exists. */

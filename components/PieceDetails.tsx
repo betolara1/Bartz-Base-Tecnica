@@ -63,6 +63,7 @@ export function PieceDetails({
   const [selectedTutorial, setSelectedTutorial] = useState<TutorialData | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [localIsFavorited, setLocalIsFavorited] = useState(false);
+  const [isImageZoomed, setIsImageZoomed] = useState(false);
 
   // Validate piece data early with fallbacks
   if (!piece) {
@@ -377,12 +378,20 @@ export function PieceDetails({
               {(() => {
                 const img = getPieceImage(safePiece.id);
                 return img ? (
-                  <div className="w-full max-w-2xl mx-auto mb-4 rounded-3xl overflow-hidden shadow-xl border border-zinc-100/60 dark:border-zinc-800/60">
+                  <div 
+                    className="w-full max-w-2xl mx-auto mb-4 rounded-3xl overflow-hidden shadow-xl border border-zinc-100/60 dark:border-zinc-800/60 cursor-zoom-in transition-all hover:scale-[1.01] hover:shadow-2xl group relative"
+                    onClick={() => setIsImageZoomed(true)}
+                  >
                     <img
                       src={img}
                       alt={safePiece.descricao}
                       className="w-full h-64 md:h-80 object-cover"
                     />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <div className="bg-white/90 dark:bg-zinc-900/90 p-3 rounded-full shadow-lg backdrop-blur-sm">
+                        <Eye className="w-5 h-5 text-amber-600" />
+                      </div>
+                    </div>
                   </div>
                 ) : null;
               })()}
@@ -631,6 +640,40 @@ export function PieceDetails({
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Fullscreen Image Zoom Overlay */}
+      {isImageZoomed && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-md animate-in fade-in duration-300"
+          onClick={() => setIsImageZoomed(false)}
+        >
+          <button 
+            className="absolute top-6 right-6 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-[110]"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsImageZoomed(false);
+            }}
+          >
+            <X className="w-6 h-6" />
+          </button>
+          
+          <div 
+            className="relative w-full max-w-5xl px-4 md:px-10 flex items-center justify-center animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img 
+              src={getPieceImage(safePiece.id) || ""} 
+              alt={safePiece.descricao}
+              className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10"
+            />
+            
+            <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 text-center space-y-1">
+              <p className="text-white font-bold text-lg">{safePiece.descricao}</p>
+              <p className="text-zinc-400 text-xs uppercase tracking-widest">{safePiece.id}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </Tabs>
   );
 }
